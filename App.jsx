@@ -42,9 +42,10 @@ const Home = () => {
       .get("https://backend-products-dsr6.onrender.com/products")
       .then((res) => {
         const data = res.data;
+        const imageUrl = `https://backend-products-dsr6.onrender.com${data.picture}`; // Concatenar o domínio
 
         setProductName(data.name);
-        setProductImg(data.picture);
+        setProductImg(imageUrl);
         setProductId(data._id);
         setProductQuant(data.quantidade);
         setProductDesc(data.descricao);
@@ -60,7 +61,7 @@ const Home = () => {
     productId,
   }) => (
     <View style={styles.containerList}>
-      <Image source={{ uri: productImg }} />
+      <Image source={{ uri: productImg }} style={styles.imagem} />
       <View style={styles.nomeButton}>
         <Text style={styles.textName}>{productName}</Text>
         <TouchableOpacity
@@ -83,7 +84,7 @@ const Home = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFDCF" }}>
-      <View>
+      <View style={{ flex: 1 }}>
         <TouchableOpacity style={styles.buttonAdd} onPress={openAdd}>
           <Text style={styles.adiconar}>Adicionar Produto</Text>
         </TouchableOpacity>
@@ -93,11 +94,12 @@ const Home = () => {
           <></>
         )}
         <FlatList
+          style={{ flex: 1 }}
           data={products}
           renderItem={({ item }) => (
             <Item
               productName={item.name}
-              productImg={item.picture}
+              productImg={`https://backend-products-dsr6.onrender.com${item.picture}`}
               productDesc={item.descricao}
               productQuant={item.quantidade}
               productId={item._id}
@@ -164,7 +166,7 @@ const styles = StyleSheet.create({
   },
   nomeButton: {
     flexDirection: "row",
-    width: "100%"
+    width: "100%",
   },
   textName: {
     width: "78%",
@@ -181,5 +183,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
     fontSize: 14,
+  },
+  imagem: {
+    width: "100%",
+    height: 200,
   },
 });

@@ -46,7 +46,7 @@ const Product = () => {
         <></>
       )}
       <View style={styles.containerProduct}>
-        <Image source={{ uri: img }} />
+        <Image source={{ uri: img }} style={styles.image} />
         <View style={styles.nomeQuant}>
           <Text style={styles.textName}>{nome}</Text>
           <Text style={styles.quantText}>Quantidade: {quant}</Text>
@@ -145,4 +145,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 5,
   },
+  image: {
+    width: "90%",
+    height: 200,
+  }
 });
