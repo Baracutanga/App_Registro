@@ -7,12 +7,10 @@ import {
   TouchableOpacity,
   Text,
   Image,
-  ScrollView,
   FlatList,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import AdicionarProduct from "./components/AdicionarProduct";
 
@@ -51,8 +49,9 @@ const Home = () => {
         setProductDesc(data.descricao);
         setProducts(data);
       });
-  });
+  }, [products]);
 
+  // Item que é renderizado na FlatList
   const Item = ({
     productName,
     productImg,
@@ -61,7 +60,7 @@ const Home = () => {
     productId,
   }) => (
     <View style={styles.containerList}>
-      <Image source={{ uri: productImg }} style={styles.imagem} />
+      {products.picture === null ? <Image source={{ uri: productImg }} style={styles.imagem} /> : null}
       <View style={styles.nomeButton}>
         <Text style={styles.textName}>{productName}</Text>
         <TouchableOpacity
@@ -82,17 +81,16 @@ const Home = () => {
     </View>
   );
 
+  // Corpo Home
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFDCF" }}>
-      <View style={{ flex: 1 }}>
-        <TouchableOpacity style={styles.buttonAdd} onPress={openAdd}>
-          <Text style={styles.adiconar}>Adicionar Produto</Text>
-        </TouchableOpacity>
-        {popUp ? (
-          <AdicionarProduct close={closeAdd} enviar={closeAdd} />
-        ) : (
-          <></>
-        )}
+    <View style={{ flex: 1, backgroundColor: "#FFFDCF" }}>
+      <TouchableOpacity style={styles.buttonAdd} onPress={openAdd}>
+        <Text style={styles.adiconar}>Adicionar Produto</Text>
+      </TouchableOpacity>
+      {popUp ? <AdicionarProduct close={closeAdd} enviar={closeAdd} /> : <></>}
+      {products.length === 0 ? (
+        <Text style={styles.textVazio}>Comece adicionando um produto🙂</Text>
+      ) : (
         <FlatList
           style={{ flex: 1 }}
           data={products}
@@ -107,8 +105,8 @@ const Home = () => {
           )}
           keyExtractor={(item) => item._id}
         />
-      </View>
-    </SafeAreaView>
+      )}
+    </View>
   );
 };
 
@@ -123,12 +121,16 @@ export default function App() {
             headerTitleAlign: "center",
             title: "Produtos",
             headerStyle: { backgroundColor: "#99602F" },
+            headerTitleStyle: { color: "#FFFDCF" },
           }}
         />
         <Stack.Screen
           name="Produto"
           component={Product}
-          options={{ headerStyle: { backgroundColor: "#99602F" } }}
+          options={{
+            headerStyle: { backgroundColor: "#99602F" },
+            headerTitleStyle: { color: "#FFFDCF" },
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
@@ -143,10 +145,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonAdd: {
-    backgroundColor: "#C7E24E",
+    backgroundColor: "#EBFF90",
     width: "80%",
     marginHorizontal: "auto",
-    marginVertical: 20,
+    marginTop: 20,
     padding: 10,
     borderRadius: 5,
     borderColor: "#C2BA59",
@@ -155,6 +157,8 @@ const styles = StyleSheet.create({
   adiconar: {
     textAlign: "center",
     fontSize: 18,
+    fontWeight: "bold",
+    opacity: 0.7,
   },
   containerList: {
     backgroundColor: "#E3E2AC",
@@ -163,29 +167,48 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     padding: 10,
     borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: .25,
+    elevation: 1,
   },
   nomeButton: {
     flexDirection: "row",
     width: "100%",
+    marginTop: 10,
+    marginBottom: 10,
+    alignItems: "center",
   },
   textName: {
-    width: "78%",
-    fontSize: 19,
+    width: "75%",
+    fontSize: 28,
     fontWeight: "bold",
+    color: "#826634",
   },
   btnVerMais: {
-    backgroundColor: "#F2C139",
-    width: 80,
-    padding: 5,
-    borderRadius: 20,
+    backgroundColor: "#8968EA",
+    width: 90,
+    padding: 10,
+    borderRadius: 5,
   },
   verMais: {
     textAlign: "center",
     textAlignVertical: "center",
     fontSize: 14,
+    color: "#fff",
   },
   imagem: {
     width: "100%",
-    height: 200,
+    height: 255,
+    borderRadius: 5,
+  },
+  textVazio: {
+    textAlign: "center",
+    textAlignVertical: "center",
+    marginVertical: 90,
+    fontSize: 32,
+    fontWeight: "bold",
+    opacity: .3,
+    width: "95%",
   },
 });

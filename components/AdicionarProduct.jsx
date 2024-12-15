@@ -16,6 +16,7 @@ const AdicionarProduct = ({ close, enviar }) => {
   const [productQuant, setProductQuant] = useState(null);
   const [productImg, setProductImg] = useState("");
 
+  // Abrir galeria para escolher imagem
   const selectImage = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -32,54 +33,60 @@ const AdicionarProduct = ({ close, enviar }) => {
     });
 
     if (!result.canceled) {
-      setProductImg(result.assets[0].uri); // Obtém a URI da imagem
+      setProductImg(result.assets[0].uri);
     }
   };
 
+  // Adicionar produto
   function sendProd() {
-    const formData = new FormData();
+    if (!productName || !productDesc || !productQuant) {
+      alert("nome, descrição e quantidade obrigatórios.");
+    } else {
+      const formData = new FormData();
 
-    formData.append("name", productName);
-    formData.append("descricao", productDesc);
-    formData.append("quantidade", productQuant);
+      formData.append("name", productName);
+      formData.append("descricao", productDesc);
+      formData.append("quantidade", productQuant);
 
-    if (productImg) {
-      // Adicionando a imagem ao FormData
-      const localUri = productImg;
-      const filename = localUri.split("/").pop();
-      const type = `image/${filename.split(".").pop()}`; // Detectando o tipo da imagem (png, jpg, jpeg, etc.)
-      formData.append("picture", {
-        uri: localUri,
-        name: filename,
-        type: type,
-      });
+      if (productImg) {
+        const localUri = productImg;
+        const filename = localUri.split("/").pop();
+        const type = `image/${filename.split(".").pop()}`;
+        formData.append("picture", {
+          uri: localUri,
+          name: filename,
+          type: type,
+        });
+      }
+
+      axios
+        .post(
+          "https://backend-products-dsr6.onrender.com/products/create",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((res) => {
+          console.log(`Produto enviado com sucesso! ${res}`);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+        close()
     }
-
-    axios
-      .post(
-        "https://backend-products-dsr6.onrender.com/products/create",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Importante para enviar arquivos
-          },
-        }
-      )
-      .then((res) => {
-        console.log(`Produto enviado com sucesso! ${res}`);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
   }
 
+  // Corpo AdicionarProduct
   return (
     <View style={styles.popUpAdd}>
       <View style={styles.nomeInput}>
         <Text>Nome</Text>
         <TextInput
           placeholder="Nome"
-          style={styles.input}
+          style={styles.textInput}
           onChangeText={setProductName}
           value={productName}
         />
@@ -88,7 +95,7 @@ const AdicionarProduct = ({ close, enviar }) => {
         <Text>Descrição</Text>
         <TextInput
           placeholder="Descrição"
-          style={styles.input}
+          style={styles.textInput}
           onChangeText={setProductDesc}
           value={productDesc}
         />
@@ -97,23 +104,23 @@ const AdicionarProduct = ({ close, enviar }) => {
         <Text>Quantidade</Text>
         <TextInput
           keyboardType="numeric"
-          style={styles.input}
+          style={styles.textInput}
           onChangeText={(text) => setProductQuant(Number(text))}
           value={productQuant ? productQuant.toString() : ""}
+          placeholder="1"
         />
       </View>
       <TouchableOpacity style={styles.selectImage} onPress={selectImage}>
         <Text>Selecionar Imagem</Text>
       </TouchableOpacity>
       <View style={styles.buttons}>
-        <TouchableOpacity onPress={close}>
-          <Text>Cancelar</Text>
+        <TouchableOpacity onPress={close} style={styles.btnCancelar}>
+          <Text style={styles.cancelar}>Cancelar</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.btnEnviar}
           onPress={() => {
             sendProd();
-            close
           }}
         >
           <Text style={styles.textBtnEnviar}>Enviar</Text>
@@ -135,13 +142,20 @@ const styles = StyleSheet.create({
     marginTop: 70,
     borderRadius: 5,
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: .35,
     elevation: 2,
     zIndex: 1,
   },
-  input: {
-    width: "100%",
+  textInput: {
+    borderWidth: 1,
+    paddingLeft: 10,
+    borderRadius: 5,
+    borderColor: "#A6A587",
+    marginBottom: 10,
+    marginTop: 5,
     backgroundColor: "#fff",
-    marginBottom: 20,
   },
   selectImage: {
     backgroundColor: "#F2C139",
@@ -150,16 +164,30 @@ const styles = StyleSheet.create({
     width: "70%",
     paddingHorizontal: 40,
     marginHorizontal: "auto",
-    borderRadius: 30,
+    borderRadius: 10,
   },
   btnEnviar: {
     backgroundColor: "#C7E24E",
     width: 70,
     padding: 10,
-    marginLeft: 260,
-    borderRadius: 30,
+    borderRadius: 5,
   },
   textBtnEnviar: {
     textAlign: "center",
+  },
+  btnCancelar: {
+    backgroundColor: "#FD4F4F",
+    width: 90,
+    padding: 10,
+    borderRadius: 5,
+  },
+  cancelar: {
+    textAlign: "center"
+  },
+  buttons: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
   },
 });

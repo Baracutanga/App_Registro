@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import React, { useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
@@ -14,14 +21,25 @@ const Product = () => {
   const navigation = useNavigation();
 
   function deleteProduct(id) {
-    axios
-      .delete(
-        `https://backend-products-dsr6.onrender.com/products/delete/${id}`
-      )
-      .then((res) => {
-        alert("Produto deletado com sucesso!");
-      })
-      .catch((err) => console.error(err));
+    Alert.alert("Confirmação", `Você realmente deseja remover ${nome}?`, [
+      {
+        text: "Cancelar",
+      },
+      {
+        text: "Confirmar",
+        onPress: () => {
+          axios
+            .delete(
+              `https://backend-products-dsr6.onrender.com/products/delete/${id}`
+            )
+            .then((res) => {
+              alert("Produto deletado com sucesso!");
+            })
+            .catch((err) => console.error(err));
+            navigation.goBack();
+        },
+      },
+    ]);
   }
 
   function openEdit() {
@@ -40,13 +58,15 @@ const Product = () => {
           desc={desc}
           id={id}
           quant={quant}
-          img={img}
+          fechar={closeEdit}
         />
       ) : (
         <></>
       )}
       <View style={styles.containerProduct}>
-        <Image source={{ uri: img }} style={styles.image} />
+        {img == null ? (
+          <Image source={{ uri: img }} style={styles.image} />
+        ) : null}
         <View style={styles.nomeQuant}>
           <Text style={styles.textName}>{nome}</Text>
           <Text style={styles.quantText}>Quantidade: {quant}</Text>
@@ -61,7 +81,6 @@ const Product = () => {
             style={styles.btnDelete}
             onPress={() => {
               deleteProduct(id);
-              navigation.goBack();
             }}
           >
             <Text style={styles.deleteText}>Excluir</Text>
@@ -83,20 +102,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   line: {
-    width: "95%",
+    width: "100%",
     height: 1,
     marginHorizontal: "auto",
     backgroundColor: "#000",
   },
   btnDelete: {
-    backgroundColor: "#D02424",
+    backgroundColor: "#FD4F4F",
     padding: 10,
     width: 80,
     marginHorizontal: 10,
     borderRadius: 5,
   },
   btnEdit: {
-    backgroundColor: "#242DD0",
+    backgroundColor: "#4B54F7",
     padding: 10,
     width: 80,
     borderRadius: 5,
@@ -108,11 +127,11 @@ const styles = StyleSheet.create({
     paddingRight: "3%",
   },
   editText: {
-    color: "#D0CDFF",
+    color: "#EDF5FF",
     textAlign: "center",
   },
   deleteText: {
-    color: "#FFCDCD",
+    color: "#230506",
     textAlign: "center",
   },
   containerDesc: {
@@ -128,17 +147,20 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     marginTop: 40,
     padding: 10,
+    borderRadius: 5,
   },
   textName: {
-    fontSize: 19,
+    fontSize: 29,
     fontWeight: "bold",
     width: "70%",
+    color: "#826634",
   },
   nomeQuant: {
     width: "95%",
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: "auto",
+    marginVertical: 10,
   },
   descText: {
     marginLeft: "3%",
@@ -146,7 +168,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   image: {
-    width: "90%",
-    height: 200,
-  }
+    width: "100%",
+    height: 255,
+    borderRadius: 5,
+  },
 });
